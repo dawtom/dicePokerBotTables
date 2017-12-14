@@ -189,8 +189,8 @@ def calculateProbabilityTwoDices(inputHand, mask):
             hand[maskIndexes[0]] = i
             hand[maskIndexes[1]] = j
             result.append(whatBestHandPlayerHas(hand))
-            print("Hand: ", hand)
-            print("Mask: ", mask)
+            # print("Hand: ", hand)
+            # print("Mask: ", mask)
 
 
     return result
@@ -278,28 +278,44 @@ def calculateProbabilityFourDices(inputHand, mask):
 
 def calculateAllProbabilities(hand):
     result = []
-    for m4 in masksFour:
-        result.extend(calculateProbabilityFourDices(hand, m4))
+    # for m4 in masksFour:
+    #     result.extend(calculateProbabilityFourDices(hand, m4))
     # for m3 in masksThree:
     #     result.extend(calculateProbabilityThreeDices(hand, m3))
-    # for m2 in masksTwo:
-    #     result.extend(calculateProbabilityTwoDices(hand, m2))
+    for m2 in masksTwo:
+        tmp = calculateProbabilityTwoDices(hand, m2)
+        c = Counter(tmp)
+        counterSum = sum(c.values())
+        for i in range (1,9):
+            g = c.get(i)
+            if (g == None):
+                g = 0
+            result.append([hand, m2, i, round((g/counterSum),4)])
     # for m1 in masksOne:
-    #     result.extend(calculateProbabilityOneDice(hand, m1))
-    print(result)
+    #     result.append((m1, calculateProbabilityOneDice(hand, m1)))
+    # print(result)
     return result
 
+r = calculateAllProbabilities([1,1,1,1,2])
+
+for t in r:
+    print(t,"\n")
 
 
+
+# x = calculateAllProbabilities([1,1,1,1,2])
+
+# print(len(x))
+# print(x)
 
 
 # print(cnt)
-cnt = Counter(calculateAllProbabilities([1,2,3,4,5]))
-print(cnt)
-c = 0
-for i in range(1,9):
-    c += cnt[i-1]
-print(c)
+# cnt = Counter(calculateAllProbabilities([1,2,3,4,5]))
+# print(cnt)
+# c = 0
+# for i in range(1,9):
+#     c += cnt[i-1]
+# print(c)
 
 # print(calculateProbabilityFiveDices([1,2,3,4,4], [1,1,1,1,1]))
 
