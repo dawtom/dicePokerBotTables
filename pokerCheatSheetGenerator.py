@@ -5,6 +5,8 @@
 import itertools as it
 from enum import Enum
 from collections import Counter
+import json
+import time
 
 class possibleHandsEnum:
     FIVE = 8
@@ -163,9 +165,9 @@ def calculateProbabilityOneDice(inputHand, mask):
             for ih in inputHand:
                 hand.append(ih)
             hand[mIndex] = i
-            print("Hand: ", hand)
+            # print("Hand: ", hand)
             result.append(whatBestHandPlayerHas(hand))
-            print("Mask: ", mask)
+            # print("Mask: ", mask)
 
 
     return result
@@ -214,8 +216,8 @@ def calculateProbabilityThreeDices(inputHand, mask):
                 hand[maskIndexes[0]] = i
                 hand[maskIndexes[1]] = j
                 hand[maskIndexes[2]] = z
-                print("Hand: ", hand)
-                print("Mask: ", mask)
+                # print("Hand: ", hand)
+                # print("Mask: ", mask)
                 result.append(whatBestHandPlayerHas(hand))
 
 
@@ -242,8 +244,8 @@ def calculateProbabilityFourDices(inputHand, mask):
                     hand[maskIndexes[1]] = j
                     hand[maskIndexes[2]] = z
                     hand[maskIndexes[3]] = a
-                    print("Hand: ", hand)
-                    print("Mask: ", mask)
+                    # print("Hand: ", hand)
+                    # print("Mask: ", mask)
                     result.append(whatBestHandPlayerHas(hand))
 
 
@@ -278,10 +280,24 @@ def calculateProbabilityFourDices(inputHand, mask):
 
 def calculateAllProbabilities(hand):
     result = []
-    # for m4 in masksFour:
-    #     result.extend(calculateProbabilityFourDices(hand, m4))
-    # for m3 in masksThree:
-    #     result.extend(calculateProbabilityThreeDices(hand, m3))
+    for m4 in masksFour:
+        tmp = calculateProbabilityFourDices(hand, m4)
+        c = Counter(tmp)
+        counterSum = sum(c.values())
+        for i in range(1, 9):
+            g = c.get(i)
+            if (g == None):
+                g = 0
+            result.append([hand, m4, i, round((g / counterSum), 4)])
+    for m3 in masksThree:
+        tmp = calculateProbabilityThreeDices(hand, m3)
+        c = Counter(tmp)
+        counterSum = sum(c.values())
+        for i in range(1, 9):
+            g = c.get(i)
+            if (g == None):
+                g = 0
+            result.append([hand, m3, i, round((g / counterSum), 4)])
     for m2 in masksTwo:
         tmp = calculateProbabilityTwoDices(hand, m2)
         c = Counter(tmp)
@@ -291,16 +307,34 @@ def calculateAllProbabilities(hand):
             if (g == None):
                 g = 0
             result.append([hand, m2, i, round((g/counterSum),4)])
-    # for m1 in masksOne:
-    #     result.append((m1, calculateProbabilityOneDice(hand, m1)))
+    for m1 in masksOne:
+        tmp = calculateProbabilityOneDice(hand, m1)
+        c = Counter(tmp)
+        counterSum = sum(c.values())
+        for i in range(1, 9):
+            g = c.get(i)
+            if (g == None):
+                g = 0
+            result.append([hand, m1, i, round((g / counterSum), 4)])
     # print(result)
     return result
 
-r = calculateAllProbabilities([1,1,1,1,2])
+# r = calculateAllProbabilities([1,1,1,1,2])
 
-for t in r:
-    print(t,"\n")
+start = time.time()
 
+for hand in handsList:
+    fileName = ''
+    for dice in hand:
+        fileName += str(dice)
+    fileName += '.json'
+
+    with open('data/' + fileName, 'w') as outfile:
+        json.dump(calculateAllProbabilities(hand), outfile)
+
+stop = time.time()
+
+print("Cheatsheet generated. It took ", stop - start, "seconds")
 
 
 # x = calculateAllProbabilities([1,1,1,1,2])
@@ -318,4 +352,6 @@ for t in r:
 # print(c)
 
 # print(calculateProbabilityFiveDices([1,2,3,4,4], [1,1,1,1,1]))
+
+
 
